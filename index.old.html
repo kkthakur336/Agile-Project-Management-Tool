@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sprintr — Agile Project Management</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand: #5C4FE5;
+    --brand-dark: #4438C4;
+    --brand-light: #EEF0FF;
+    --brand-mid: #7B72EE;
+    --bg: #F4F5F9;
+    --white: #FFFFFF;
+    --sidebar-w: 240px;
+    --text: #1A1D2E;
+    --text-2: #6B7280;
+    --text-3: #9CA3AF;
+    --border: #E5E7EB;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 24px rgba(92,79,229,0.12);
+  }
+  html, body, #root { height: 100%; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  button { cursor: pointer; font-family: inherit; border: none; background: none; }
+  input, textarea, select { font-family: inherit; }
+
+  /* ── LAYOUT ── */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); min-width: var(--sidebar-w);
+    background: var(--white); display: flex; flex-direction: column;
+    border-right: 1px solid var(--border); padding: 0 0 16px; overflow-y: auto;
+  }
+  .logo { padding: 22px 20px 18px; display: flex; align-items: center; gap: 8px; }
+  .logo-mark { width: 32px; height: 32px; background: var(--brand); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { width: 18px; height: 18px; fill: white; }
+  .logo-text { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .logo-text span { color: var(--brand); }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--text-3); letter-spacing: 1.2px; text-transform: uppercase; padding: 8px 20px 6px; margin-top: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px; padding: 10px 16px 10px 20px;
+    font-size: 14px; font-weight: 500; color: var(--text-2); cursor: pointer;
+    border-radius: 0; transition: all 0.15s; margin: 1px 0; position: relative;
+  }
+  .nav-item:hover { color: var(--brand); background: var(--brand-light); }
+  .nav-item.active {
+    color: var(--brand); font-weight: 700; background: var(--brand-light);
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 4px; background: var(--brand); border-radius: 0 4px 4px 0;
+  }
+  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-badge { margin-left: auto; background: var(--brand); color: white; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+  .sidebar-bottom { margin-top: auto; padding: 12px 12px 0; }
+  .sidebar-promo {
+    background: linear-gradient(135deg, #1A1D2E 0%, #2d3155 100%);
+    border-radius: var(--radius); padding: 18px 16px; color: white; position: relative; overflow: hidden;
+  }
+  .sidebar-promo::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(92,79,229,0.4); border-radius: 50%; }
+  .sidebar-promo::after { content: ''; position: absolute; bottom: -10px; left: 20px; width: 50px; height: 50px; background: rgba(123,114,238,0.3); border-radius: 50%; }
+  .promo-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; z-index: 1; }
+  .promo-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; position: relative; z-index: 1; }
+  .promo-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 12px; position: relative; z-index: 1; }
+  .promo-btn { width: 100%; background: var(--brand); color: white; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 700; position: relative; z-index: 1; transition: background 0.15s; }
+  .promo-btn:hover { background: var(--brand-dark); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; padding: 12px 24px; flex-shrink: 0;
+  }
+  .search-wrap {
+    flex: 1; max-width: 480px; display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border-radius: 12px; padding: 9px 14px; border: 1.5px solid transparent; transition: border-color 0.15s;
+  }
+  .search-wrap:focus-within { border-color: var(--brand); background: white; }
+  .search-wrap input { flex: 1; background: none; border: none; outline: none; font-size: 13.5px; color: var(--text); }
+  .search-wrap input::placeholder { color: var(--text-3); }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--text-2); transition: all 0.15s; position: relative;
+  }
+  .icon-btn:hover { background: var(--brand-light); color: var(--brand); }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #EF4444; border-radius: 50%; border: 2px solid white; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px;
+    background: var(--bg); border-radius: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .user-chip:hover { background: var(--brand-light); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .user-role { font-size: 11px; color: var(--text-3); }
+
+  /* PAGE CONTENT */
+  .page { flex: 1; overflow-y: auto; padding: 24px; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .page-sub { font-size: 13.5px; color: var(--text-2); margin-top: 3px; }
+  .btn-primary { background: var(--brand); color: white; border-radius: 10px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; transition: all 0.15s; box-shadow: 0 4px 12px rgba(92,79,229,0.3); }
+  .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(92,79,229,0.4); }
+  .btn-outline { background: white; color: var(--text); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 18px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; transition: all 0.15s; }
+  .btn-outline:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+  .btn-group { display: flex; gap: 10px; align-items: center; }
+
+  /* CARDS */
+  .card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+
+  /* STAT CARDS */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .stat-card.highlight { background: var(--brand); color: white; }
+  .stat-card.highlight .stat-label, .stat-card.highlight .stat-trend { color: rgba(255,255,255,0.8); }
+  .stat-label { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 10px; }
+  .stat-value { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+  .stat-card.highlight .stat-value { color: white; }
+  .stat-trend { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 5px; }
+  .stat-arrow { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: 16px; right: 16px; cursor: pointer; }
+  .stat-card:not(.highlight) .stat-arrow { background: var(--bg); }
+
+  /* DASHBOARD GRID */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .dash-grid .wide { grid-column: span 2; }
+  .dash-grid .narrow { grid-column: span 1; }
+
+  /* CHART BAR */
+  .chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 90px; margin-top: 16px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar { width: 100%; background: var(--brand); border-radius: 30px 30px 16px 16px; transition: all 0.3s; cursor: pointer; min-height: 8px; }
+  .bar:hover { background: var(--brand-dark); transform: scaleY(1.04); transform-origin: bottom; }
+  .bar-label { font-size: 10px; color: var(--text-3); font-weight: 600; }
+
+  /* MEMBER ROW */
+  .member-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .member-row:last-child { border-bottom: none; }
+  .member-info { flex: 1; min-width: 0; }
+  .member-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .member-task { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge-green { background: #D1FAE5; color: #059669; }
+  .badge-blue { background: #DBEAFE; color: #2563EB; }
+  .badge-yellow { background: #FEF3C7; color: #D97706; }
+  .badge-red { background: #FEE2E2; color: #DC2626; }
+  .badge-purple { background: var(--brand-light); color: var(--brand); }
+  .badge-gray { background: #F3F4F6; color: #6B7280; }
+
+  /* PROJECT LIST */
+  .project-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .project-item:last-child { border-bottom: none; }
+  .proj-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .proj-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .proj-due { font-size: 11.5px; color: var(--text-3); }
+
+  /* MEETING CARD */
+  .meeting-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .meeting-title { font-size: 20px; font-weight: 800; color: var(--brand); margin-bottom: 6px; }
+  .meeting-time { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
+  .meeting-btn { width: 100%; background: var(--brand); color: white; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; }
+  .meeting-btn:hover { background: var(--brand-dark); }
+
+  /* DONUT */
+  .donut-wrap { display: flex; flex-direction: column; align-items: center; }
+  .donut-pct { font-size: 32px; font-weight: 800; color: var(--text); margin-top: -10px; }
+  .donut-label { font-size: 12px; color: var(--text-2); margin-bottom: 12px; }
+  .legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-2); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* TIME TRACKER */
+  .time-tracker { background: linear-gradient(135deg, #1A1D2E 0%, #2d3155 100%); border-radius: var(--radius); padding: 20px; color: white; }
+  .tracker-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .tracker-time { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; font-family: 'DM Sans', monospace; }
+  .tracker-btns { display: flex; gap: 10px; }
+  .tracker-btn { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.15s; }
+  .tracker-btn:hover { transform: scale(1.1); }
+  .tracker-btn.pause { background: white; color: #1A1D2E; }
+  .tracker-btn.stop { background: #EF4444; color: white; }
+
+  /* BOARD PAGE */
+  .board-columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
+  .board-col { background: var(--bg); border-radius: var(--radius); padding: 14px; }
+  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .col-title { font-size: 13.5px; font-weight: 800; color: var(--text); }
+  .col-count { background: var(--border); color: var(--text-2); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .story-card { background: white; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; }
+  .story-card:hover { border-color: var(--brand); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .story-id { font-size: 10.5px; color: var(--text-3); font-weight: 700; margin-bottom: 6px; }
+  .story-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.4; }
+  .story-footer { display: flex; align-items: center; justify-content: space-between; }
+  .points-badge { background: var(--brand-light); color: var(--brand); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .progress-bar-wrap { height: 3px; background: var(--border); border-radius: 10px; margin: 8px 0; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--brand); border-radius: 10px; }
+  .add-card-btn { width: 100%; background: transparent; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 10px; font-size: 13px; color: var(--text-3); font-weight: 600; transition: all 0.15s; }
+  .add-card-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* PROJECTS PAGE */
+  .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .proj-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; }
+  .proj-card:hover { border-color: var(--brand); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .proj-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .proj-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .proj-card-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .proj-card-desc { font-size: 12.5px; color: var(--text-2); margin-bottom: 14px; line-height: 1.5; }
+  .proj-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-3); }
+  .proj-avatars { display: flex; margin-left: auto; }
+  .proj-avatars .avatar { width: 24px; height: 24px; font-size: 9px; border: 2px solid white; margin-left: -6px; }
+  .proj-avatars .avatar:first-child { margin-left: 0; }
+  .progress-ring-wrap { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  .ring-label { font-size: 12px; font-weight: 700; color: var(--brand); }
+  .ring-sub { font-size: 11px; color: var(--text-3); }
+  .full-progress { height: 6px; background: var(--bg); border-radius: 10px; flex: 1; overflow: hidden; }
+  .full-progress-fill { height: 100%; background: var(--brand); border-radius: 10px; }
+
+  /* STORY DETAIL */
+  .story-detail-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+  .task-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-row:last-child { border-bottom: none; }
+  .task-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
+  .task-check.done { background: var(--brand); border-color: var(--brand); }
+  .task-check.done::after { content: '✓'; font-size: 10px; color: white; font-weight: 800; }
+  .task-text { font-size: 13.5px; flex: 1; }
+  .task-text.done { text-decoration: line-through; color: var(--text-3); }
+  .meta-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .meta-key { color: var(--text-3); font-weight: 600; }
+  .meta-val { color: var(--text); font-weight: 600; }
+  .comment-box { display: flex; gap: 10px; margin-top: 16px; }
+  .comment-input { flex: 1; background: var(--bg); border: 1.5px solid transparent; border-radius: 10px; padding: 10px 14px; font-size: 13.5px; outline: none; transition: border-color 0.15s; resize: none; }
+  .comment-input:focus { border-color: var(--brand); background: white; }
+
+  /* BACKLOG PAGE */
+  .backlog-table { width: 100%; border-collapse: collapse; }
+  .backlog-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .backlog-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; color: var(--text); }
+  .backlog-table tr:hover td { background: var(--brand-light); }
+  .backlog-table tr:last-child td { border-bottom: none; }
+
+  /* SETTINGS PAGE */
+  .settings-grid { display: grid; grid-template-columns: 200px 1fr; gap: 24px; }
+  .settings-nav .s-nav-item { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 600; color: var(--text-2); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+  .settings-nav .s-nav-item:hover { background: var(--brand-light); color: var(--brand); }
+  .settings-nav .s-nav-item.active { background: var(--brand-light); color: var(--brand); font-weight: 700; }
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .form-input { width: 100%; background: var(--bg); border: 1.5px solid transparent; border-radius: 10px; padding: 10px 14px; font-size: 13.5px; outline: none; transition: border-color 0.15s; }
+  .form-input:focus { border-color: var(--brand); background: white; }
+  .section-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -0.3px; }
+  .section-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .toggle { width: 42px; height: 24px; border-radius: 12px; background: var(--border); cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+  .toggle.on { background: var(--brand); }
+  .toggle::after { content: ''; width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .toggle.on::after { left: 21px; }
+
+  /* TEAM PAGE */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .team-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); text-align: center; transition: all 0.15s; }
+  .team-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .team-avatar { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 12px; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .team-name { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+  .team-role { font-size: 12px; color: var(--text-3); margin-bottom: 12px; }
+  .team-stats { display: flex; gap: 16px; justify-content: center; padding-top: 12px; border-top: 1px solid var(--border); }
+  .team-stat { text-align: center; }
+  .team-stat-n { font-size: 16px; font-weight: 800; color: var(--text); }
+  .team-stat-l { font-size: 10.5px; color: var(--text-3); }
+
+  /* CALENDAR */
+  .cal-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day-header { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-3); padding: 6px; text-transform: uppercase; }
+  .cal-day { min-height: 80px; border-radius: 8px; padding: 6px; background: white; border: 1.5px solid transparent; cursor: pointer; transition: all 0.15s; }
+  .cal-day:hover { border-color: var(--brand); background: var(--brand-light); }
+  .cal-day.today { border-color: var(--brand); }
+  .cal-day.other-month { opacity: 0.4; }
+  .cal-day-num { font-size: 12px; font-weight: 700; color: var(--text-2); margin-bottom: 3px; }
+  .cal-day.today .cal-day-num { color: var(--brand); }
+  .cal-event { background: var(--brand-light); color: var(--brand); font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* NOTIFICATIONS PANEL */
+  .notif-panel { position: absolute; top: 60px; right: 80px; width: 340px; background: white; border-radius: var(--radius); box-shadow: 0 8px 40px rgba(0,0,0,0.15); z-index: 100; padding: 0; overflow: hidden; border: 1px solid var(--border); }
+  .notif-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .notif-title { font-size: 14px; font-weight: 800; }
+  .notif-item { display: flex; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+  .notif-item:hover { background: var(--brand-light); }
+  .notif-item.unread { background: #F9F8FF; }
+  .notif-dot-unread { width: 8px; height: 8px; background: var(--brand); border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .notif-text { font-size: 12.5px; color: var(--text); line-height: 1.4; }
+  .notif-time { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+  /* MODAL */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal { background: white; border-radius: var(--radius); padding: 28px; width: 480px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+  /* ANALYTICS PAGE */
+  .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .analytics-grid .full { grid-column: span 2; }
+  .big-chart { display: flex; align-items: flex-end; gap: 10px; height: 120px; padding: 0 8px; }
+  .big-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .big-bar { width: 100%; border-radius: 8px 8px 4px 4px; transition: all 0.3s; cursor: pointer; }
+  .big-bar.primary { background: var(--brand); }
+  .big-bar.secondary { background: var(--brand-light); }
+  .big-bar:hover { opacity: 0.85; }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .page > * { animation: fadeIn 0.25s ease both; }
+  .page > *:nth-child(2) { animation-delay: 0.04s; }
+  .page > *:nth-child(3) { animation-delay: 0.08s; }
+  .page > *:nth-child(4) { animation-delay: 0.12s; }
+
+  /* AUTH PAGES */
+  .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #F4F5F9 0%, #EEF0FF 100%); }
+  .auth-card { background: white; border-radius: 20px; padding: 40px; width: 420px; box-shadow: 0 20px 60px rgba(92,79,229,0.12); }
+  .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .auth-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .auth-sub { font-size: 13.5px; color: var(--text-2); margin-bottom: 24px; }
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+  .auth-divider span { font-size: 12px; color: var(--text-3); }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .social-btn { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px; font-size: 13.5px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; margin-bottom: 10px; }
+  .social-btn:hover { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
+  .auth-link { color: var(--brand); font-weight: 700; cursor: pointer; }
+  .auth-link:hover { text-decoration: underline; }
+
+  /* Responsive tweaks */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .board-columns { grid-template-columns: repeat(2, 1fr); }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── DATA ── */
+const USERS = [
+  { id:1, name:'Kim Jiwon', role:'Product Manager', color:'#5C4FE5', initials:'KJ' },
+  { id:2, name:'Alexandra Deff', role:'Frontend Dev', color:'#10B981', initials:'AD' },
+  { id:3, name:'Edwin Adenike', role:'Backend Dev', color:'#F59E0B', initials:'EA' },
+  { id:4, name:'Isaac Oluwatemilorun', role:'QA Engineer', color:'#EF4444', initials:'IO' },
+  { id:5, name:'Priya Sharma', role:'UI Designer', color:'#8B5CF6', initials:'PS' },
+  { id:6, name:'Marcus Tran', role:'DevOps', color:'#06B6D4', initials:'MT' },
+];
+
+const PROJECTS = [
+  { id:1, name:'E-Commerce Platform', desc:'Full redesign of shopping flow and checkout experience', icon:'🛒', color:'#EEF0FF', stories:12, done:7, members:[1,2,3], due:'Dec 30', status:'In Progress' },
+  { id:2, name:'Mobile Banking App', desc:'iOS and Android native application for retail banking', icon:'💳', color:'#FEF3C7', stories:8, done:8, members:[1,4,5], due:'Dec 15', status:'Completed' },
+  { id:3, name:'Internal CRM Tool', desc:'Custom CRM for sales team workflow automation', icon:'📊', color:'#D1FAE5', stories:15, done:5, members:[2,3,6], due:'Jan 20', status:'In Progress' },
+  { id:4, name:'Analytics Dashboard', desc:'Real-time analytics and reporting for business intelligence', icon:'📈', color:'#FEE2E2', stories:6, done:2, members:[1,3,5,6], due:'Jan 10', status:'Review' },
+  { id:5, name:'API Gateway Service', desc:'Centralized API management and rate limiting system', icon:'⚙️', color:'#DBEAFE', stories:9, done:9, members:[3,6], due:'Nov 30', status:'Completed' },
+  { id:6, name:'Auth & SSO Module', desc:'Single sign-on and multi-factor authentication module', icon:'🔐', color:'#F3E8FF', stories:7, done:3, members:[2,3,4], due:'Feb 5', status:'Backlog' },
+];
+
+const STORIES = [
+  { id:'US-001', title:'User Login & Registration', project:1, status:'Done', priority:'High', points:5, assignee:2, tasks:4, doneTasks:4, due:'Nov 15' },
+  { id:'US-002', title:'Product Catalog with Filters', project:1, status:'In Progress', priority:'High', points:8, assignee:3, tasks:6, doneTasks:3, due:'Nov 22' },
+  { id:'US-003', title:'Shopping Cart & Checkout', project:1, status:'In Progress', priority:'High', points:13, assignee:2, tasks:8, doneTasks:2, due:'Dec 1' },
+  { id:'US-004', title:'Payment Gateway Integration', project:1, status:'Review', priority:'High', points:8, assignee:3, tasks:5, doneTasks:5, due:'Nov 28' },
+  { id:'US-005', title:'Order History Dashboard', project:1, status:'Backlog', priority:'Med', points:5, assignee:1, tasks:3, doneTasks:0, due:'Dec 10' },
+  { id:'US-006', title:'Product Reviews & Ratings', project:1, status:'Backlog', priority:'Low', points:3, assignee:4, tasks:4, doneTasks:0, due:'Dec 20' },
+  { id:'US-007', title:'Admin Panel - User Management', project:3, status:'In Progress', priority:'High', points:8, assignee:3, tasks:5, doneTasks:2, due:'Dec 5' },
+  { id:'US-008', title:'Email Notification System', project:3, status:'Backlog', priority:'Med', points:5, assignee:2, tasks:4, doneTasks:0, due:'Dec 15' },
+];
+
+const TASKS = {
+  'US-003': [
+    { id:'T-01', text:'Design cart UI mockups', done: true, assignee:5 },
+    { id:'T-02', text:'Implement cart context/state', done: true, assignee:2 },
+    { id:'T-03', text:'Build checkout form with validation', done: false, assignee:2 },
+    { id:'T-04', text:'Integrate Stripe payment widget', done: false, assignee:3 },
+    { id:'T-05', text:'Write unit tests for cart logic', done: false, assignee:4 },
+    { id:'T-06', text:'QA testing on mobile viewports', done: false, assignee:4 },
+    { id:'T-07', text:'Handle edge cases (out of stock)', done: false, assignee:2 },
+    { id:'T-08', text:'Deploy to staging environment', done: false, assignee:6 },
+  ]
+};
+
+const NOTIFICATIONS = [
+  { id:1, text:'US-004 "Payment Gateway" moved to Review — Edwin Adenike', time:'2m ago', read:false },
+  { id:2, text:'Task T-02 overdue: "Cart context/state" — due yesterday', time:'1h ago', read:false },
+  { id:3, text:'New comment on US-002 from Alexandra Deff', time:'3h ago', read:false },
+  { id:4, text:'Daily digest: 3 tasks assigned to you due this week', time:'8:00 AM', read:true },
+  { id:5, text:'Sprint review meeting scheduled for Friday 2pm', time:'Yesterday', read:true },
+];
+
+/* ── ICONS ── */
+const Icon = ({ name, size=18 }) => {
+  const icons = {
+    dashboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
+    tasks: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>,
+    calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+    analytics: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>,
+    team: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
+    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+    help: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>,
+    logout: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>,
+    search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+    mail: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+    bell: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>,
+    chevron: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+    plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+    arrow: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>,
+    back: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>,
+    video: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>,
+    projects: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>,
+  };
+  return icons[name] || null;
+};
+
+/* ── COMPONENTS ── */
+const Avatar = ({ user, size=32 }) => (
+  <div className="avatar" style={{ width:size, height:size, background: user?.color||'#5C4FE5', fontSize: size*0.35 }}>
+    {user?.initials||'?'}
+  </div>
+);
+
+const StatusPill = ({ status }) => {
+  const map = { 'Done':'badge-green','Completed':'badge-green','In Progress':'badge-blue','Review':'badge-yellow','Backlog':'badge-gray','Pending':'badge-yellow','High':'badge-red','Med':'badge-blue','Low':'badge-gray' };
+  return <span className={`badge ${map[status]||'badge-gray'}`}>{status}</span>;
+};
+
+const DonutChart = ({ pct=41 }) => {
+  const r = 50, cx=60, cy=60, circ = 2*Math.PI*r;
+  const filled = circ * (pct/100);
+  return (
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#E5E7EB" strokeWidth="14"/>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#5C4FE5" strokeWidth="14"
+        strokeDasharray={`${filled} ${circ}`} strokeDashoffset={circ*0.25}
+        strokeLinecap="round" style={{transform:'rotate(-90deg)',transformOrigin:'50% 50%'}}/>
+      <circle cx={cx} cy={cy} r={r*0.55} fill="none" stroke="#A5B4FC" strokeWidth="10"
+        strokeDasharray={`${circ*0.55*0.3} ${circ*0.55}`} strokeDashoffset={circ*0.55*0.25}
+        style={{transform:'rotate(30deg)',transformOrigin:'50% 50%'}}/>
+    </svg>
+  );
+};
+
+/* ── SIDEBAR ── */
+const Sidebar = ({ page, setPage, setShowModal }) => {
+  const nav = [
+    { label:'MNNU', items:[
+      { id:'dashboard', icon:'dashboard', name:'Dashboard' },
+      { id:'projects', icon:'projects', name:'Projects' },
+      { id:'board', icon:'tasks', name:'Board', badge:8 },
+      { id:'backlog', icon:'tasks', name:'Backlog' },
+      { id:'calendar', icon:'calendar', name:'Calendar' },
+      { id:'analytics', icon:'analytics', name:'Analytics' },
+      { id:'team', icon:'team', name:'Team' },
+    ]},
+    { label:'GENERAL', items:[
+      { id:'settings', icon:'settings', name:'Settings' },
+      { id:'help', icon:'help', name:'Help' },
+      { id:'login', icon:'logout', name:'Logout' },
+    ]}
+  ];
+  return (
+    <div className="sidebar">
+      <div className="logo">
+        <div className="logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <span className="logo-text">Sprin<span>tr</span></span>
+      </div>
+      {nav.map(group => (
+        <div key={group.label}>
+          <div className="nav-label">{group.label}</div>
+          {group.items.map(item => (
+            <div key={item.id} className={`nav-item ${page===item.id?'active':''}`} onClick={()=>setPage(item.id)}>
+              <span className="nav-icon"><Icon name={item.icon} size={17}/></span>
+              {item.name}
+              {item.badge && <span className="sidebar-badge">{item.badge}</span>}
+            </div>
+          ))}
+        </div>
+      ))}
+      <div className="sidebar-bottom">
+        <div className="sidebar-promo">
+          <div className="promo-icon"><Icon name="mail" size={14}/></div>
+          <div className="promo-title">Download our Mobile app</div>
+          <div className="promo-sub">Get easy in another way</div>
+          <button className="promo-btn">Download</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── TOPBAR ── */
+const Topbar = ({ showNotif, setShowNotif }) => (
+  <div className="topbar">
+    <div className="search-wrap">
+      <Icon name="search" size={16}/>
+      <input placeholder="Search for tasks, projects..." />
+    </div>
+    <div className="topbar-actions">
+      <button className="icon-btn" onClick={()=>setShowNotif(v=>!v)}>
+        <Icon name="mail" size={17}/>
+      </button>
+      <button className="icon-btn" style={{position:'relative'}} onClick={()=>setShowNotif(v=>!v)}>
+        <Icon name="bell" size={17}/>
+        <span className="notif-dot"/>
+      </button>
+      <div className="user-chip">
+        <Avatar user={USERS[0]} size={32}/>
+        <div>
+          <div className="user-name">Kim Jiwon</div>
+          <div className="user-role">Product Manager</div>
+        </div>
+        <Icon name="chevron" size={14}/>
+      </div>
+    </div>
+  </div>
+);
+
+/* ── NOTIFICATIONS PANEL ── */
+const NotifPanel = ({ notifs, onClose }) => (
+  <div className="notif-panel">
+    <div className="notif-header">
+      <span className="notif-title">Notifications</span>
+      <button onClick={onClose} style={{color:'var(--text-3)',fontSize:13,fontWeight:700}}>Mark all read</button>
+    </div>
+    {notifs.map(n=>(
+      <div key={n.id} className={`notif-item ${!n.read?'unread':''}`}>
+        <div className="notif-dot-unread" style={{opacity:n.read?0:1}}/>
+        <div>
+          <div className="notif-text">{n.text}</div>
+          <div className="notif-time">{n.time}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* ── MODAL ── */
+const Modal = ({ title, sub, onClose, children }) => (
+  <div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <div className="modal">
+      <div className="modal-title">{title}</div>
+      <div className="modal-sub">{sub}</div>
+      {children}
+    </div>
+  </div>
+);
+
+/* ── DASHBOARD PAGE ── */
+const Dashboard = ({ setPage, showModal, setShowModal }) => {
+  const bars = [72,58,90,65,80,45,55];
+  const days = ['M','T','W','T','F','S','S'];
+  const maxBar = Math.max(...bars);
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Dashboard</div>
+          <div className="page-sub">A quick view of your tasks and team updates.</div>
+        </div>
+        <div className="btn-group">
+          <button className="btn-primary" onClick={()=>setShowModal('project')}><Icon name="plus" size={14}/>Add Project</button>
+          <button className="btn-outline" onClick={()=>setShowModal('story')}><Icon name="plus" size={14}/>Add Story</button>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        {[
+          { label:'Tasks Completed', val:72, trend:'Increased from last month', highlight:true },
+          { label:'Tasks In Progress', val:145, trend:'Increased from last month' },
+          { label:'Pending Reviews', val:32, trend:'Increased from last month' },
+          { label:'Overdue Tasks', val:72, trend:'On Discuss' },
+        ].map((s,i)=>(
+          <div key={i} className={`stat-card ${s.highlight?'highlight':''}`}>
+            <div className="stat-arrow"><Icon name="arrow" size={13}/></div>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-value">{s.val}</div>
+            <div className="stat-trend">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              {s.trend}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="dash-grid">
+        <div className="card wide">
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+            <span style={{fontWeight:700,fontSize:14}}>Project Analytics</span>
+            <span className="badge badge-purple">Weekly</span>
+          </div>
+          <div className="chart-wrap">
+            {bars.map((h,i)=>(
+              <div key={i} className="bar-col">
+                <div className="bar" style={{height:`${(h/maxBar)*100}%`, opacity: h===maxBar?1:0.55}}/>
+                <div className="bar-label">{days[i]}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="meeting-card narrow">
+          <div style={{fontWeight:700,fontSize:13.5,color:'var(--text-2)',marginBottom:8}}>Project Analytics</div>
+          <div className="meeting-title">Meeting with Arc Company</div>
+          <div className="meeting-time">Time: 02:00 pm — 04:00 pm</div>
+          <button className="meeting-btn"><Icon name="video" size={15}/>Start Meeting</button>
+        </div>
+
+        <div className="card narrow">
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+            <span style={{fontWeight:700,fontSize:14}}>Project Analytics</span>
+            <button className="btn-outline" style={{padding:'4px 10px',fontSize:12}}><Icon name="plus" size={12}/>New</button>
+          </div>
+          {[
+            { name:'Develop API Endpoints', due:'Nov 26, 2025', color:'#5C4FE5' },
+            { name:'Onboarding Flow', due:'Nov 28, 2025', color:'#10B981' },
+            { name:'Build Dashboard', due:'Nov 29, 2025', color:'#EF4444' },
+            { name:'Optimize Page Load', due:'Dec 5, 2025', color:'#F59E0B' },
+          ].map((p,i)=>(
+            <div key={i} className="project-item">
+              <div className="proj-icon" style={{background: p.color+'22'}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={p.color} strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+              </div>
+              <div>
+                <div className="proj-name">{p.name}</div>
+                <div className="proj-due">Due date: {p.due}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card wide">
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+            <span style={{fontWeight:700,fontSize:14}}>Team Activity</span>
+            <button className="btn-outline" style={{padding:'5px 12px',fontSize:12}}><Icon name="plus" size={12}/>Add Member</button>
+          </div>
+          {[
+            { user:USERS[1], task:'Github Project Repository', status:'Completed' },
+            { user:USERS[2], task:'Integrate User Authentication System', status:'In Progress' },
+            { user:USERS[3], task:'Develop Search and Filter Functionality', status:'Pending' },
+          ].map((m,i)=>(
+            <div key={i} className="member-row">
+              <Avatar user={m.user} size={38}/>
+              <div className="member-info">
+                <div className="member-name">{m.user.name}</div>
+                <div className="member-task">Working on {m.task}</div>
+              </div>
+              <StatusPill status={m.status}/>
+            </div>
+          ))}
+        </div>
+
+        <div className="card narrow">
+          <div style={{fontWeight:700,fontSize:14,marginBottom:14}}>Sprint Progress</div>
+          <div className="donut-wrap">
+            <DonutChart pct={41}/>
+            <div className="donut-pct">41%</div>
+            <div className="donut-label">Project Ended</div>
+          </div>
+          <div className="legend">
+            {[['#5C4FE5','Completed'],['#1A1D2E','In Progress'],['#D1D5DB','Pending']].map(([c,l])=>(
+              <div key={l} className="legend-item"><div className="legend-dot" style={{background:c}}/>{l}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="time-tracker">
+          <div className="tracker-label">Time Tracker</div>
+          <div className="tracker-time">01:24:08</div>
+          <div className="tracker-btns">
+            <button className="tracker-btn pause">⏸</button>
+            <button className="tracker-btn stop">⏹</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── PROJECTS PAGE ── */
+const ProjectsPage = ({ setPage, setActiveProjId, showModal, setShowModal }) => (
+  <div className="page">
+    <div className="page-header">
+      <div>
+        <div className="page-title">Projects</div>
+        <div className="page-sub">{PROJECTS.length} active projects across your team.</div>
+      </div>
+      <button className="btn-primary" onClick={()=>setShowModal('project')}><Icon name="plus" size={14}/>New Project</button>
+    </div>
+    <div className="projects-grid">
+      {PROJECTS.map(p=>{
+        const pct = Math.round(p.done/p.stories*100);
+        return (
+          <div key={p.id} className="proj-card" onClick={()=>{ setActiveProjId(p.id); setPage('board'); }}>
+            <div className="proj-card-header">
+              <div className="proj-card-icon" style={{background:p.color,fontSize:22}}>{p.icon}</div>
+              <StatusPill status={p.status}/>
+            </div>
+            <div className="proj-card-title">{p.name}</div>
+            <div className="proj-card-desc">{p.desc}</div>
+            <div className="proj-meta">
+              <span>📅 {p.due}</span>
+              <span>📖 {p.stories} stories</span>
+              <div className="proj-avatars">
+                {p.members.slice(0,3).map(uid=>(
+                  <Avatar key={uid} user={USERS[uid-1]} size={24}/>
+                ))}
+              </div>
+            </div>
+            <div className="progress-ring-wrap">
+              <div style={{flex:1}}>
+                <div className="full-progress"><div className="full-progress-fill" style={{width:pct+'%'}}/></div>
+              </div>
+              <span className="ring-label">{pct}%</span>
+              <span className="ring-sub">{p.done}/{p.stories}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+/* ── BOARD PAGE ── */
+const BoardPage = ({ projId, setPage, setActiveStoryId, showModal, setShowModal }) => {
+  const proj = PROJECTS.find(p=>p.id===projId)||PROJECTS[0];
+  const cols = ['Backlog','In Progress','Review','Done'];
+  const colBadgeColors = { 'Backlog':'#6B7280','In Progress':'#2563EB','Review':'#D97706','Done':'#059669' };
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <button className="icon-btn" onClick={()=>setPage('projects')} style={{background:'var(--bg)'}}>
+            <Icon name="back" size={16}/>
+          </button>
+          <div>
+            <div className="page-title">{proj.name}</div>
+            <div className="page-sub">Kanban Board · Sprint 4</div>
+          </div>
+        </div>
+        <div className="btn-group">
+          <div className="proj-avatars" style={{marginRight:8}}>
+            {proj.members.map(uid=><Avatar key={uid} user={USERS[uid-1]} size={30}/>)}
+          </div>
+          <button className="btn-outline" onClick={()=>setShowModal('member')}><Icon name="plus" size={14}/>Add Member</button>
+          <button className="btn-primary" onClick={()=>setShowModal('story')}><Icon name="plus" size={14}/>New Story</button>
+        </div>
+      </div>
+      <div className="board-columns">
+        {cols.map(col=>{
+          const colStories = STORIES.filter(s=>s.project===proj.id&&s.status===col);
+          return (
+            <div key={col} className="board-col">
+              <div className="col-header">
+                <span className="col-title">{col}</span>
+                <span className="col-count" style={{background:colBadgeColors[col]+'22',color:colBadgeColors[col]}}>{colStories.length}</span>
+              </div>
+              {colStories.map(s=>(
+                <div key={s.id} className="story-card" onClick={()=>{ setActiveStoryId(s.id); setPage('story'); }}>
+                  <div className="story-id">{s.id}</div>
+                  <div className="story-title">{s.title}</div>
+                  <div className="progress-bar-wrap">
+                    <div className="progress-bar-fill" style={{width:`${(s.doneTasks/s.tasks*100)}%`}}/>
+                  </div>
+                  <div className="story-footer">
+                    <StatusPill status={s.priority}/>
+                    <span className="points-badge">⚡ {s.points} pts</span>
+                    <Avatar user={USERS[s.assignee-1]} size={24}/>
+                  </div>
+                </div>
+              ))}
+              <button className="add-card-btn" onClick={()=>setShowModal('story')}>+ Add story</button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ── STORY DETAIL ── */
+const StoryDetail = ({ storyId, setPage }) => {
+  const story = STORIES.find(s=>s.id===storyId)||STORIES[2];
+  const [tasks, setTasks] = useState(TASKS[story.id]||[
+    { id:'T-A', text:'Initial planning and design', done:true, assignee:5 },
+    { id:'T-B', text:'Backend API development', done:true, assignee:3 },
+    { id:'T-C', text:'Frontend integration', done:false, assignee:2 },
+    { id:'T-D', text:'QA and testing', done:false, assignee:4 },
+  ]);
+  const [comment, setComment] = useState('');
+  const toggleTask = id => setTasks(ts=>ts.map(t=>t.id===id?{...t,done:!t.done}:t));
+  const doneCnt = tasks.filter(t=>t.done).length;
+  return (
+    <div className="page">
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <button className="icon-btn" onClick={()=>setPage('board')}><Icon name="back" size={16}/></button>
+        <div>
+          <div style={{fontSize:11,color:'var(--text-3)',fontWeight:700,marginBottom:2}}>{story.id} · {PROJECTS.find(p=>p.id===story.project)?.name}</div>
+          <div className="page-title" style={{fontSize:20}}>{story.title}</div>
+        </div>
+        <div style={{marginLeft:'auto',display:'flex',gap:10}}>
+          <StatusPill status={story.status}/>
+          <StatusPill status={story.priority}/>
+        </div>
+      </div>
+      <div className="story-detail-grid">
+        <div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:800,fontSize:14,marginBottom:10}}>Description</div>
+            <div style={{fontSize:13.5,color:'var(--text-2)',lineHeight:1.6}}>
+              As a user, I want to be able to add items to my shopping cart, modify quantities, remove items, and proceed to checkout seamlessly. The cart should persist between sessions and sync across devices if the user is logged in.
+            </div>
+          </div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+              <span style={{fontWeight:800,fontSize:14}}>Tasks</span>
+              <span style={{fontSize:12,color:'var(--text-3)',fontWeight:700}}>{doneCnt}/{tasks.length} done</span>
+            </div>
+            <div className="progress-bar-wrap" style={{height:5,marginBottom:14}}>
+              <div className="progress-bar-fill" style={{width:`${doneCnt/tasks.length*100}%`}}/>
+            </div>
+            {tasks.map(t=>(
+              <div key={t.id} className="task-row">
+                <div className={`task-check ${t.done?'done':''}`} onClick={()=>toggleTask(t.id)}/>
+                <span className={`task-text ${t.done?'done':''}`}>{t.text}</span>
+                <Avatar user={USERS[t.assignee-1]} size={24}/>
+                <StatusPill status={t.done?'Done':'In Progress'}/>
+              </div>
+            ))}
+            <div className="task-row" style={{paddingTop:12}}>
+              <input className="form-input" placeholder="+ Add a task..." style={{fontSize:13}}/>
+            </div>
+          </div>
+          <div className="card">
+            <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>Comments</div>
+            <div className="comment-box">
+              <Avatar user={USERS[0]} size={32}/>
+              <textarea className="comment-input" rows={3} placeholder="Write a comment..." value={comment} onChange={e=>setComment(e.target.value)}/>
+            </div>
+            {comment && <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}><button className="btn-primary" style={{padding:'7px 14px',fontSize:12}}>Post</button></div>}
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:800,fontSize:14,marginBottom:14}}>Story Details</div>
+            {[
+              ['Assignee', <Avatar user={USERS[story.assignee-1]} size={26}/>],
+              ['Status', <StatusPill status={story.status}/>],
+              ['Priority', <StatusPill status={story.priority}/>],
+              ['Story Points', <span className="points-badge">⚡ {story.points} pts</span>],
+              ['Due Date', <span style={{fontWeight:700,fontSize:13}}>📅 {story.due}</span>],
+              ['Sprint', <span className="badge badge-purple">Sprint 4</span>],
+            ].map(([k,v])=>(
+              <div key={k} className="meta-row">
+                <span className="meta-key">{k}</span>
+                {v}
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>Activity Log</div>
+            {[
+              { user:USERS[2], action:'moved to In Progress', time:'2h ago' },
+              { user:USERS[1], action:'updated the description', time:'1d ago' },
+              { user:USERS[0], action:'created this story', time:'3d ago' },
+            ].map((a,i)=>(
+              <div key={i} style={{display:'flex',gap:10,marginBottom:12}}>
+                <Avatar user={a.user} size={28}/>
+                <div>
+                  <span style={{fontWeight:700,fontSize:12.5}}>{a.user.name} </span>
+                  <span style={{fontSize:12.5,color:'var(--text-2)'}}>{a.action}</span>
+                  <div style={{fontSize:11,color:'var(--text-3)'}}>{a.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── BACKLOG PAGE ── */
+const BacklogPage = ({ showModal, setShowModal }) => {
+  const [filter, setFilter] = useState('All');
+  const filtered = filter==='All' ? STORIES : STORIES.filter(s=>s.status===filter);
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Backlog</div>
+          <div className="page-sub">All user stories across all sprints.</div>
+        </div>
+        <div className="btn-group">
+          {['All','Backlog','In Progress','Review','Done'].map(f=>(
+            <button key={f} className={filter===f?'btn-primary':'btn-outline'} style={{padding:'8px 14px',fontSize:12.5}} onClick={()=>setFilter(f)}>{f}</button>
+          ))}
+          <button className="btn-primary" onClick={()=>setShowModal('story')}><Icon name="plus" size={14}/>Add Story</button>
+        </div>
+      </div>
+      <div className="card" style={{padding:0,overflow:'hidden'}}>
+        <table className="backlog-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Title</th><th>Project</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Points</th><th>Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(s=>(
+              <tr key={s.id}>
+                <td><span style={{fontWeight:700,color:'var(--brand)',fontSize:12}}>{s.id}</span></td>
+                <td style={{fontWeight:600,maxWidth:260}}>{s.title}</td>
+                <td style={{fontSize:12,color:'var(--text-3)'}}>{PROJECTS.find(p=>p.id===s.project)?.name}</td>
+                <td><StatusPill status={s.status}/></td>
+                <td><StatusPill status={s.priority}/></td>
+                <td><div style={{display:'flex',alignItems:'center',gap:7}}><Avatar user={USERS[s.assignee-1]} size={26}/><span style={{fontSize:12.5}}>{USERS[s.assignee-1].name}</span></div></td>
+                <td><span className="points-badge">{s.points}</span></td>
+                <td style={{fontSize:12.5,color:'var(--text-2)'}}>{s.due}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+/* ── CALENDAR PAGE ── */
+const CalendarPage = () => {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const events = { 5:['Sprint Review'], 12:['API Demo'], 15:['Team Sync','Arc Meeting'], 22:['Release'], 28:['Retro'] };
+  const cells = Array.from({length:35},(_,i)=>i-3);
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Calendar</div>
+          <div className="page-sub">November 2025</div>
+        </div>
+        <div className="btn-group">
+          <button className="btn-outline">◀ Prev</button>
+          <button className="btn-outline">Next ▶</button>
+          <button className="btn-primary"><Icon name="plus" size={14}/>Add Event</button>
+        </div>
+      </div>
+      <div className="cal-grid">
+        <div>
+          <div className="cal-days">
+            {days.map(d=><div key={d} className="cal-day-header">{d}</div>)}
+            {cells.map(d=>(
+              <div key={d} className={`cal-day ${d===23?'today':''} ${d<1||d>30?'other-month':''}`}>
+                <div className="cal-day-num">{d<1?30+d:d>30?d-30:d}</div>
+                {events[d]?.map(e=><div key={e} className="cal-event">{e}</div>)}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>Upcoming Events</div>
+            {[
+              { date:'Nov 23', title:'Sprint Review', time:'10:00 AM', color:'#5C4FE5' },
+              { date:'Nov 25', title:'API Demo', time:'2:00 PM', color:'#10B981' },
+              { date:'Nov 28', title:'Team Retrospective', time:'4:00 PM', color:'#F59E0B' },
+              { date:'Dec 1', title:'Sprint Planning', time:'9:00 AM', color:'#EF4444' },
+            ].map((e,i)=>(
+              <div key={i} style={{display:'flex',gap:12,marginBottom:12,alignItems:'flex-start'}}>
+                <div style={{width:4,height:40,borderRadius:4,background:e.color,flexShrink:0}}/>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13.5}}>{e.title}</div>
+                  <div style={{fontSize:12,color:'var(--text-3)'}}>{e.date} · {e.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{fontWeight:800,fontSize:14,marginBottom:12}}>My Tasks Due Soon</div>
+            {STORIES.filter(s=>s.assignee===1).map(s=>(
+              <div key={s.id} className="member-row" style={{paddingBottom:10}}>
+                <div className="priority-dot" style={{background:'var(--brand)'}}/>
+                <div className="member-info">
+                  <div className="member-name" style={{fontSize:13}}>{s.title}</div>
+                  <div className="member-task">Due: {s.due}</div>
+                </div>
+                <StatusPill status={s.status}/>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── ANALYTICS PAGE ── */
+const AnalyticsPage = () => {
+  const months = ['Jul','Aug','Sep','Oct','Nov','Dec'];
+  const data1 = [60,75,55,90,72,80];
+  const data2 = [40,50,65,45,55,60];
+  const max = Math.max(...data1,...data2);
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Analytics</div>
+          <div className="page-sub">Performance overview for your team.</div>
+        </div>
+        <div className="btn-group">
+          <button className="btn-outline">This Month</button>
+          <button className="btn-primary">Export Report</button>
+        </div>
+      </div>
+      <div className="stats-grid" style={{marginBottom:20}}>
+        {[
+          { label:'Total Stories', val:48, icon:'📖' },
+          { label:'Completed', val:29, icon:'✅' },
+          { label:'Avg Velocity', val:'8.5', icon:'⚡' },
+          { label:'Team Members', val:6, icon:'👥' },
+        ].map((s,i)=>(
+          <div key={i} className="stat-card" style={{display:'flex',alignItems:'center',gap:14,padding:'16px 20px'}}>
+            <div style={{fontSize:28}}>{s.icon}</div>
+            <div>
+              <div className="stat-label" style={{marginBottom:4}}>{s.label}</div>
+              <div className="stat-value" style={{fontSize:28,marginBottom:0}}>{s.val}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="analytics-grid">
+        <div className="card full">
+          <div style={{fontWeight:800,fontSize:14,marginBottom:4}}>Story Throughput</div>
+          <div style={{fontSize:12.5,color:'var(--text-2)',marginBottom:16}}>Stories completed vs created per month</div>
+          <div className="big-chart">
+            {months.map((m,i)=>(
+              <div key={m} className="big-bar-col">
+                <div style={{display:'flex',gap:4,alignItems:'flex-end',height:'100%'}}>
+                  <div className="big-bar primary" style={{height:`${(data1[i]/max)*100}%`,flex:1}}/>
+                  <div className="big-bar secondary" style={{height:`${(data2[i]/max)*100}%`,flex:1}}/>
+                </div>
+                <div style={{fontSize:11,color:'var(--text-3)',fontWeight:600,marginTop:6}}>{m}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:16,marginTop:12}}>
+            <div className="legend-item"><div className="legend-dot" style={{background:'var(--brand)'}}/>Completed</div>
+            <div className="legend-item"><div className="legend-dot" style={{background:'var(--brand-light)'}}/>Created</div>
+          </div>
+        </div>
+        <div className="card">
+          <div style={{fontWeight:800,fontSize:14,marginBottom:14}}>Stories by Status</div>
+          {[['Done',29,100],['In Progress',11,38],['Review',4,14],['Backlog',4,14]].map(([s,n,w])=>(
+            <div key={s} style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                <span style={{fontSize:13,fontWeight:600}}>{s}</span><span style={{fontSize:13,fontWeight:700,color:'var(--brand)'}}>{n}</span>
+              </div>
+              <div className="full-progress"><div className="full-progress-fill" style={{width:w+'%'}}/></div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div style={{fontWeight:800,fontSize:14,marginBottom:14}}>Top Contributors</div>
+          {USERS.slice(0,5).map((u,i)=>(
+            <div key={u.id} style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+              <span style={{fontSize:11,fontWeight:800,color:'var(--text-3)',width:16}}>{i+1}</span>
+              <Avatar user={u} size={32}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:700}}>{u.name}</div>
+                <div style={{fontSize:11.5,color:'var(--text-3)'}}>{u.role}</div>
+              </div>
+              <span className="points-badge">{[14,11,9,7,5][i]} stories</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── TEAM PAGE ── */
+const TeamPage = ({ showModal, setShowModal }) => (
+  <div className="page">
+    <div className="page-header">
+      <div>
+        <div className="page-title">Team</div>
+        <div className="page-sub">{USERS.length} members in your workspace.</div>
+      </div>
+      <button className="btn-primary" onClick={()=>setShowModal('member')}><Icon name="plus" size={14}/>Invite Member</button>
+    </div>
+    <div className="team-grid">
+      {USERS.map(u=>(
+        <div key={u.id} className="team-card">
+          <div className="team-avatar" style={{background:u.color,fontSize:22,color:'white'}}>{u.initials}</div>
+          <div className="team-name">{u.name}</div>
+          <div className="team-role">{u.role}</div>
+          <StatusPill status={u.id===1?'Completed':'In Progress'}/>
+          <div className="team-stats">
+            {[['Stories',[8,5,9,4,7,3][u.id-1]],['Tasks',[24,18,31,12,19,9][u.id-1]],['Done',[6,4,7,3,5,2][u.id-1]]].map(([l,n])=>(
+              <div key={l} className="team-stat"><div className="team-stat-n">{n}</div><div className="team-stat-l">{l}</div></div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/* ── SETTINGS PAGE ── */
+const SettingsPage = () => {
+  const [tab, setTab] = useState('profile');
+  const [toggles, setToggles] = useState({ overdue:true, digest:true, comments:false, mention:true });
+  const toggle = k => setToggles(t=>({...t,[k]:!t[k]}));
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Settings</div>
+          <div className="page-sub">Manage your account and preferences.</div>
+        </div>
+      </div>
+      <div className="settings-grid">
+        <div className="settings-nav">
+          {[['profile','👤 Profile'],['team','👥 Team'],['notifications','🔔 Notifications'],['security','🔐 Security']].map(([id,l])=>(
+            <div key={id} className={`s-nav-item ${tab===id?'active':''}`} onClick={()=>setTab(id)}>{l}</div>
+          ))}
+        </div>
+        <div className="card">
+          {tab==='profile' && <>
+            <div className="section-title">Profile Settings</div>
+            <div className="section-sub">Update your personal information.</div>
+            <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>
+              <Avatar user={USERS[0]} size={64}/>
+              <div>
+                <button className="btn-primary" style={{padding:'8px 14px',fontSize:12}}>Change Photo</button>
+                <div style={{fontSize:12,color:'var(--text-3)',marginTop:5}}>JPG, PNG up to 5MB</div>
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              {[['First Name','Kim'],['Last Name','Jiwon'],['Email','kim@sprintr.io'],['Role','Product Manager']].map(([l,v])=>(
+                <div key={l} className="form-group"><label className="form-label">{l}</label><input className="form-input" defaultValue={v}/></div>
+              ))}
+            </div>
+            <div className="form-group"><label className="form-label">Bio</label><textarea className="form-input" rows={3} defaultValue="Product manager with 5+ years building digital products."/></div>
+            <div style={{display:'flex',justifyContent:'flex-end'}}><button className="btn-primary">Save Changes</button></div>
+          </>}
+          {tab==='team' && <>
+            <div className="section-title">Team Members</div>
+            <div className="section-sub">Manage your workspace members and roles.</div>
+            {USERS.map(u=>(
+              <div key={u.id} className="member-row">
+                <Avatar user={u} size={40}/>
+                <div className="member-info"><div className="member-name">{u.name}</div><div className="member-task">{u.role}</div></div>
+                <StatusPill status={u.id===1?'Completed':'In Progress'}/>
+                {u.id!==1 && <button className="btn-outline" style={{padding:'5px 10px',fontSize:11.5}}>Remove</button>}
+              </div>
+            ))}
+            <div className="divider"/>
+            <div className="form-group"><label className="form-label">Invite by Email</label><div style={{display:'flex',gap:10}}><input className="form-input" placeholder="colleague@company.com"/><button className="btn-primary">Invite</button></div></div>
+          </>}
+          {tab==='notifications' && <>
+            <div className="section-title">Notification Preferences</div>
+            <div className="section-sub">Choose what alerts you receive.</div>
+            {[
+              ['overdue','Overdue Task Alerts','Get notified when tasks pass their due date'],
+              ['digest','Daily Digest Email','Receive a morning summary of your assigned items'],
+              ['comments','Comment Mentions','Notify when someone comments on your stories'],
+              ['mention','@Mention Alerts','Notify when you\'re directly mentioned'],
+            ].map(([k,title,sub])=>(
+              <div key={k} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderBottom:'1px solid var(--border)'}}>
+                <div><div style={{fontWeight:700,fontSize:14}}>{title}</div><div style={{fontSize:12.5,color:'var(--text-3)',marginTop:2}}>{sub}</div></div>
+                <div className={`toggle ${toggles[k]?'on':''}`} onClick={()=>toggle(k)}/>
+              </div>
+            ))}
+          </>}
+          {tab==='security' && <>
+            <div className="section-title">Security</div>
+            <div className="section-sub">Update your password and security settings.</div>
+            {[['Current Password',''],['New Password',''],['Confirm Password','']].map(([l])=>(
+              <div key={l} className="form-group"><label className="form-label">{l}</label><input className="form-input" type="password" placeholder="••••••••"/></div>
+            ))}
+            <div className="divider"/>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
+              <div><div style={{fontWeight:700,fontSize:14}}>Two-Factor Authentication</div><div style={{fontSize:12.5,color:'var(--text-3)',marginTop:2}}>Add an extra layer of security</div></div>
+              <button className="btn-outline">Enable 2FA</button>
+            </div>
+            <div style={{display:'flex',justifyContent:'flex-end'}}><button className="btn-primary">Update Password</button></div>
+          </>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── AUTH PAGES ── */
+const LoginPage = ({ setPage }) => (
+  <div className="auth-page">
+    <div className="auth-card">
+      <div className="auth-logo">
+        <div className="logo-mark"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <span className="logo-text">Sprin<span>tr</span></span>
+      </div>
+      <div className="auth-title">Welcome back 👋</div>
+      <div className="auth-sub">Sign in to your workspace to continue.</div>
+      <button className="social-btn">🔵 Continue with Google</button>
+      <div className="auth-divider"><span>or sign in with email</span></div>
+      <div className="form-group"><label className="form-label">Email</label><input className="form-input" defaultValue="kim@sprintr.io" type="email"/></div>
+      <div className="form-group"><label className="form-label">Password</label><input className="form-input" defaultValue="password" type="password"/></div>
+      <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4,padding:'12px'}} onClick={()=>setPage('dashboard')}>Sign In →</button>
+      <div style={{textAlign:'center',marginTop:16,fontSize:13,color:'var(--text-2)'}}>
+        Don't have an account? <span className="auth-link" onClick={()=>setPage('register')}>Sign up</span>
+      </div>
+    </div>
+  </div>
+);
+
+const RegisterPage = ({ setPage }) => (
+  <div className="auth-page">
+    <div className="auth-card">
+      <div className="auth-logo">
+        <div className="logo-mark"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <span className="logo-text">Sprin<span>tr</span></span>
+      </div>
+      <div className="auth-title">Create your account</div>
+      <div className="auth-sub">Start managing your projects in minutes.</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <div className="form-group"><label className="form-label">First Name</label><input className="form-input" placeholder="Kim"/></div>
+        <div className="form-group"><label className="form-label">Last Name</label><input className="form-input" placeholder="Jiwon"/></div>
+      </div>
+      <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" placeholder="you@company.io"/></div>
+      <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" placeholder="Min. 8 characters"/></div>
+      <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4,padding:'12px'}} onClick={()=>setPage('dashboard')}>Create Account →</button>
+      <div style={{textAlign:'center',marginTop:16,fontSize:13,color:'var(--text-2)'}}>
+        Already have an account? <span className="auth-link" onClick={()=>setPage('login')}>Sign in</span>
+      </div>
+    </div>
+  </div>
+);
+
+/* ── ADD PROJECT MODAL ── */
+const AddProjectModal = ({ onClose }) => (
+  <Modal title="Create New Project" sub="Set up a project to start tracking work." onClose={onClose}>
+    <div className="form-group"><label className="form-label">Project Name</label><input className="form-input" placeholder="e.g. Mobile App Redesign"/></div>
+    <div className="form-group"><label className="form-label">Description</label><textarea className="form-input" rows={3} placeholder="What are you building?"/></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+      <div className="form-group"><label className="form-label">Start Date</label><input className="form-input" type="date"/></div>
+      <div className="form-group"><label className="form-label">Due Date</label><input className="form-input" type="date"/></div>
+    </div>
+    <div className="form-group"><label className="form-label">Team Members</label>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+        {USERS.map(u=><div key={u.id} title={u.name}><Avatar user={u} size={32}/></div>)}
+      </div>
+    </div>
+    <div className="modal-footer">
+      <button className="btn-outline" onClick={onClose}>Cancel</button>
+      <button className="btn-primary" onClick={onClose}>Create Project</button>
+    </div>
+  </Modal>
+);
+
+const AddStoryModal = ({ onClose }) => (
+  <Modal title="New User Story" sub="Describe a feature from the user's perspective." onClose={onClose}>
+    <div className="form-group"><label className="form-label">Story Title</label><input className="form-input" placeholder="As a user, I want to..."/></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+      <div className="form-group"><label className="form-label">Project</label>
+        <select className="form-input">{PROJECTS.map(p=><option key={p.id}>{p.name}</option>)}</select>
+      </div>
+      <div className="form-group"><label className="form-label">Assignee</label>
+        <select className="form-input">{USERS.map(u=><option key={u.id}>{u.name}</option>)}</select>
+      </div>
+      <div className="form-group"><label className="form-label">Priority</label>
+        <select className="form-input"><option>High</option><option>Med</option><option>Low</option></select>
+      </div>
+      <div className="form-group"><label className="form-label">Story Points</label>
+        <select className="form-input">{[1,2,3,5,8,13,21].map(n=><option key={n}>{n}</option>)}</select>
+      </div>
+    </div>
+    <div className="form-group"><label className="form-label">Due Date</label><input className="form-input" type="date"/></div>
+    <div className="modal-footer">
+      <button className="btn-outline" onClick={onClose}>Cancel</button>
+      <button className="btn-primary" onClick={onClose}>Add Story</button>
+    </div>
+  </Modal>
+);
+
+const AddMemberModal = ({ onClose }) => (
+  <Modal title="Invite Team Member" sub="Send an invite link to a new collaborator." onClose={onClose}>
+    <div className="form-group"><label className="form-label">Email Address</label><input className="form-input" placeholder="colleague@company.com"/></div>
+    <div className="form-group"><label className="form-label">Role</label>
+      <select className="form-input"><option>Developer</option><option>Designer</option><option>QA Engineer</option><option>Product Manager</option><option>DevOps</option></select>
+    </div>
+    <div className="modal-footer">
+      <button className="btn-outline" onClick={onClose}>Cancel</button>
+      <button className="btn-primary" onClick={onClose}>Send Invite</button>
+    </div>
+  </Modal>
+);
+
+/* ── APP ROOT ── */
+const App = () => {
+  const [page, setPage] = useState('login');
+  const [showNotif, setShowNotif] = useState(false);
+  const [showModal, setShowModal] = useState(null);
+  const [activeProjId, setActiveProjId] = useState(1);
+  const [activeStoryId, setActiveStoryId] = useState('US-003');
+  const [notifs, setNotifs] = useState(NOTIFICATIONS);
+
+  const isAuth = !['login','register'].includes(page);
+
+  const renderPage = () => {
+    switch(page) {
+      case 'login': return <LoginPage setPage={setPage}/>;
+      case 'register': return <RegisterPage setPage={setPage}/>;
+      case 'dashboard': return <Dashboard setPage={setPage} showModal={showModal} setShowModal={setShowModal}/>;
+      case 'projects': return <ProjectsPage setPage={setPage} setActiveProjId={setActiveProjId} showModal={showModal} setShowModal={setShowModal}/>;
+      case 'board': return <BoardPage projId={activeProjId} setPage={setPage} setActiveStoryId={setActiveStoryId} showModal={showModal} setShowModal={setShowModal}/>;
+      case 'story': return <StoryDetail storyId={activeStoryId} setPage={setPage}/>;
+      case 'backlog': return <BacklogPage showModal={showModal} setShowModal={setShowModal}/>;
+      case 'calendar': return <CalendarPage/>;
+      case 'analytics': return <AnalyticsPage/>;
+      case 'team': return <TeamPage showModal={showModal} setShowModal={setShowModal}/>;
+      case 'settings': return <SettingsPage/>;
+      default: return <Dashboard setPage={setPage} showModal={showModal} setShowModal={setShowModal}/>;
+    }
+  };
+
+  if (!isAuth) return <>
+    {renderPage()}
+    {showModal==='project' && <AddProjectModal onClose={()=>setShowModal(null)}/>}
+  </>;
+
+  return (
+    <div className="app" onClick={()=>showNotif&&setShowNotif(false)}>
+      <Sidebar page={page} setPage={setPage} setShowModal={setShowModal}/>
+      <div className="main">
+        <Topbar showNotif={showNotif} setShowNotif={setShowNotif}/>
+        <div style={{position:'relative',flex:1,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+          {showNotif && <NotifPanel notifs={notifs} onClose={()=>setShowNotif(false)}/>}
+          {renderPage()}
+        </div>
+      </div>
+      {showModal==='project' && <AddProjectModal onClose={()=>setShowModal(null)}/>}
+      {showModal==='story' && <AddStoryModal onClose={()=>setShowModal(null)}/>}
+      {showModal==='member' && <AddMemberModal onClose={()=>setShowModal(null)}/>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
