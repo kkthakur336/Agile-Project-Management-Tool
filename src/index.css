@@ -57,35 +57,81 @@
 
 /* ── Dark Mode ───────────────────────────────────────────── */
 html.dark {
-  --color-bg:           #0D0F1A;
-  --color-text-main:    #F1F2F8;
-  --color-text-2:       #C4C6D4;
-  --color-text-3:       #7B7E94;
-  --color-border-light: #2E3148;
-  --color-brand-light:  #1A1D3A;
+  --color-bg:           #0b1220;
+  --color-text-main:    #e5e7eb;
+  --color-text-2:       #9ca3af;
+  --color-text-3:       #6b7280;
+  --color-border-light: #1f2937;
+  --color-brand-light:  #1e293b;
 }
 
-html.dark .bg-white             { background-color: #151826 !important; }
-html.dark .bg-gray-50           { background-color: #1C1F33 !important; }
-html.dark .hover\:bg-gray-50:hover { background-color: #1C1F33 !important; }
-html.dark .bg-gray-100          { background-color: #252840 !important; }
-html.dark .hover\:bg-gray-100:hover { background-color: #252840 !important; }
-html.dark .hover\:bg-white:hover { background-color: #252840 !important; }
-html.dark .shadow-sm            { box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important; }
-html.dark .border-border-light  { border-color: #2E3148 !important; }
-html.dark .border-gray-100      { border-color: #2E3148 !important; }
-html.dark .ring-white           { --tw-ring-color: #151826 !important; }
+html.dark .bg-white             { background-color: #0f172a !important; }
+html.dark .bg-gray-50           { background-color: #111827 !important; }
+html.dark .hover\:bg-gray-50:hover { background-color: #1e293b !important; }
+html.dark .bg-gray-100          { background-color: #1e293b !important; }
+html.dark .hover\:bg-gray-100:hover { background-color: #1e293b !important; }
+html.dark .hover\:bg-white:hover { background-color: #1e293b !important; }
+html.dark .shadow-sm            { box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
+html.dark .border-border-light  { border-color: #1f2937 !important; }
+html.dark .border-gray-100      { border-color: #1f2937 !important; }
+html.dark .ring-white           { --tw-ring-color: #0f172a !important; }
 
 /* Force text visibility */
-html.dark .text-text-main       { color: #F1F2F8 !important; }
-html.dark .text-text-2          { color: #C4C6D4 !important; }
-html.dark .text-text-3          { color: #A0A4B8 !important; } /* Brighter gray for visibility */
+html.dark .text-text-main       { color: #e5e7eb !important; }
+html.dark .text-text-2          { color: #9ca3af !important; }
+html.dark .text-text-3          { color: #6b7280 !important; }
 
 html.dark input,
 html.dark textarea,
 html.dark select {
-  color: #F1F2F8;
-  border-color: #2E3148;
+  background-color: #0b1220;
+  color: #e5e7eb;
+  border-color: #1f2937;
 }
 
-html.dark ::-webkit-scrollbar-thumb { background: #2E3148; }
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: var(--color-brand);
+}
+
+html.dark ::-webkit-scrollbar-thumb { background: #1f2937; }
+
+/* ── Utility Overrides for Dark Mode ─────────────────────── */
+html.dark .bg-bg                { background-color: #0b1220 !important; }
+html.dark .bg-brand-light       { background-color: rgba(92, 79, 229, 0.1) !important; color: #7b72ee !important; }
+html.dark .bg-brand-light\/30   { background-color: rgba(92, 79, 229, 0.05) !important; }
+html.dark .bg-gray-50\/30       { background-color: rgba(15, 23, 42, 0.3) !important; }
+html.dark .bg-gray-50\/50       { background-color: rgba(15, 23, 42, 0.5) !important; }
+html.dark .bg-gray-50\/60       { background-color: rgba(15, 23, 42, 0.6) !important; }
+
+html.dark .bg-amber-50          { background-color: rgba(245, 158, 11, 0.05) !important; color: #f59e0b !important; border-color: rgba(245, 158, 11, 0.2) !important; }
+html.dark .bg-emerald-50        { background-color: rgba(16, 185, 129, 0.05) !important; color: #10b981 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+html.dark .bg-red-50            { background-color: rgba(239, 68, 68, 0.05) !important; color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.2) !important; }
+html.dark .bg-blue-50           { background-color: rgba(59, 130, 246, 0.05) !important; color: #3b82f6 !important; border-color: rgba(59, 130, 246, 0.2) !important; }
+html.dark .bg-indigo-50         { background-color: rgba(99, 102, 241, 0.05) !important; color: #6366f1 !important; border-color: rgba(99, 102, 241, 0.2) !important; }
+html.dark .bg-purple-50         { background-color: rgba(168, 85, 247, 0.05) !important; color: #a855f7 !important; border-color: rgba(168, 85, 247, 0.2) !important; }
+html.dark .bg-cyan-50           { background-color: rgba(6, 182, 212, 0.05) !important; color: #06b6d4 !important; border-color: rgba(6, 182, 212, 0.2) !important; }
+
+html.dark .bg-red-100           { background-color: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
+html.dark .bg-blue-100          { background-color: rgba(59, 130, 246, 0.1) !important; color: #3b82f6 !important; }
+html.dark .bg-gray-100          { background-color: #1e293b !important; color: #9ca3af !important; }
+
+html.dark .text-amber-600       { color: #f59e0b !important; }
+html.dark .text-emerald-600     { color: #10b981 !important; }
+html.dark .text-red-600         { color: #ef4444 !important; }
+html.dark .text-brand           { color: #7b72ee !important; }
+
+html.dark .border-border-light\/50 { border-color: rgba(31, 41, 55, 0.5) !important; }
+html.dark .border-amber-200     { border-color: rgba(245, 158, 11, 0.2) !important; }
+html.dark .border-emerald-200   { border-color: rgba(16, 185, 129, 0.2) !important; }
+html.dark .border-red-200       { border-color: rgba(239, 68, 68, 0.2) !important; }
+html.dark .border-blue-200      { border-color: rgba(59, 130, 246, 0.2) !important; }
+
+html.dark .bg-black\/50         { background-color: rgba(0, 0, 0, 0.8) !important; }
+html.dark .bg-black\/40         { background-color: rgba(0, 0, 0, 0.7) !important; }
+
+/* Success/Error banners */
+html.dark .bg-green-50          { background-color: rgba(16, 185, 129, 0.05) !important; color: #10b981 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+html.dark .text-green-700       { color: #10b981 !important; }
+html.dark .border-green-200     { border-color: rgba(16, 185, 129, 0.2) !important; }

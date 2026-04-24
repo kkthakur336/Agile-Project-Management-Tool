@@ -120,11 +120,6 @@ export const AuthPage = ({ onLogin }: { onLogin: () => void }) => {
                 className="w-full bg-bg border border-border-light rounded-2xl py-3.5 pl-11 pr-4 text-[14px] font-semibold text-text-main focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all placeholder-text-3"
               />
             </div>
-            {isLogin && (
-              <div className="text-right mt-2">
-                <a href="#" className="text-[13px] font-bold text-brand hover:underline">Forgot password?</a>
-              </div>
-            )}
           </div>
 
           <button

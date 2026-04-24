@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DonutChart } from '../components/Common';
 import { supabase } from '../lib/supabase';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 /* ── Types ── */
 interface AnalyticsData {
@@ -100,7 +101,7 @@ export const AnalyticsPage = () => {
 
   useEffect(() => { fetchAnalytics(); }, [fetchAnalytics]);
 
-  const maxBar = Math.max(...(data?.monthlyTasks.map(m => m.count) ?? [1]), 1);
+  const maxBar = Math.max(...(data?.monthlyTasks?.map(m => m.count) ?? [1]), 1);
 
   const statusBreakdown = data ? [
     { label: 'Done',        count: data.done,       color: '#10B981', bg: 'bg-green-500' },
@@ -108,6 +109,8 @@ export const AnalyticsPage = () => {
     { label: 'Review',      count: data.review,     color: '#F59E0B', bg: 'bg-amber-400' },
     { label: 'Backlog',     count: data.backlog,     color: '#6B7280', bg: 'bg-gray-400' },
   ] : [];
+
+  const { isDark } = useDarkMode();
 
   return (
     <div className="flex-1 overflow-y-auto px-8 pb-8">
@@ -121,7 +124,7 @@ export const AnalyticsPage = () => {
         </div>
         <button
           onClick={fetchAnalytics}
-          className="bg-white border border-border-light rounded-xl px-5 py-3 text-[14px] font-bold text-text-main shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors"
+          className="bg-white dark:bg-dark-paper border border-border-light dark:border-dark-border rounded-xl px-5 py-3 text-[14px] font-bold text-text-main shadow-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
@@ -141,7 +144,7 @@ export const AnalyticsPage = () => {
       <div className="grid grid-cols-3 gap-6">
 
         {/* ── Monthly Task Velocity (bar chart) ── */}
-        <div className="col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-border-light/50">
+        <div className="col-span-2 bg-white dark:bg-dark-paper rounded-3xl p-8 shadow-sm border border-border-light/50 dark:border-dark-border">
           <div className="flex items-center justify-between mb-8">
             <div>
               <span className="font-bold text-[18px] text-text-main">Monthly Task Activity</span>
@@ -161,8 +164,8 @@ export const AnalyticsPage = () => {
             <div className="flex items-end justify-between h-[220px] gap-6 px-4 animate-pulse">
               {[1,2,3,4,5,6,7].map(i => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-3">
-                  <div className="w-full bg-gray-100 rounded-t-xl" style={{ height: `${40 + i * 20}px` }} />
-                  <div className="w-8 h-3 bg-gray-100 rounded" />
+                  <div className="w-full bg-gray-100 dark:bg-dark-border rounded-t-xl" style={{ height: `${40 + i * 20}px` }} />
+                  <div className="w-8 h-3 bg-gray-100 dark:bg-dark-border rounded" />
                 </div>
               ))}
             </div>
@@ -172,12 +175,12 @@ export const AnalyticsPage = () => {
                 <div className="absolute inset-0 flex flex-col justify-between opacity-5 pr-4">
                   {[1,2,3,4].map(i => <div key={i} className="border-t border-text-main w-full" />)}
                 </div>
-                {data?.monthlyTasks.map((m, i) => (
+                {data?.monthlyTasks?.map((m, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-3 relative z-10 group">
                     <div className="w-full relative flex flex-col justify-end h-[180px]">
                       {/* Created bar (background) */}
                       <div
-                        className="absolute inset-x-1 bottom-0 bg-brand-light rounded-t-xl"
+                        className="absolute inset-x-1 bottom-0 bg-brand-light rounded-t-xl opacity-60"
                         style={{ height: `${(m.count / maxBar) * 100}%`, minHeight: m.count > 0 ? 6 : 0 }}
                       />
                       {/* Done bar (foreground) */}
@@ -205,7 +208,7 @@ export const AnalyticsPage = () => {
         <div className="flex flex-col gap-6">
 
           {/* Donut: Task Status Distribution */}
-          <div className="bg-white rounded-3xl p-7 shadow-sm border border-border-light/50">
+          <div className="bg-white dark:bg-dark-paper rounded-3xl p-7 shadow-sm border border-border-light/50 dark:border-dark-border">
             <div className="font-bold text-[18px] text-text-main mb-6">Task Distribution</div>
             <div className="flex flex-col items-center">
               <div className="relative mb-6">
@@ -223,7 +226,7 @@ export const AnalyticsPage = () => {
                       <span className="text-[13px] font-bold text-text-2">{s.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-gray-100 dark:bg-dark-border rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{ backgroundColor: s.color, width: data?.total ? `${(s.count / data.total) * 100}%` : '0%' }}
@@ -238,22 +241,22 @@ export const AnalyticsPage = () => {
           </div>
 
           {/* Priority Breakdown */}
-          <div className="bg-white rounded-3xl p-7 shadow-sm border border-border-light/50">
+          <div className="bg-white dark:bg-dark-paper rounded-3xl p-7 shadow-sm border border-border-light/50 dark:border-dark-border">
             <div className="font-bold text-[16px] text-text-main mb-5">Priority Breakdown</div>
             {loading ? (
               <div className="space-y-3 animate-pulse">
-                {[1,2,3].map(i => <div key={i} className="h-8 bg-gray-100 rounded-xl" />)}
+                {[1,2,3].map(i => <div key={i} className="h-8 bg-gray-100 dark:bg-dark-border rounded-xl" />)}
               </div>
             ) : (
               <div className="space-y-3">
-                {data?.priorityBreakdown.map(p => (
+                {data?.priorityBreakdown?.map(p => (
                   <div key={p.label} className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: p.color }} />
                       <span className="text-[13px] font-bold text-text-2">{p.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-20 h-1.5 bg-gray-100 dark:bg-dark-border rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{ backgroundColor: p.color, width: data.total ? `${(p.count / data.total) * 100}%` : '0%' }}
@@ -274,7 +277,7 @@ export const AnalyticsPage = () => {
         {/* ── Tasks Solved: row of status cards ── */}
         <div className="col-span-3 grid grid-cols-4 gap-6">
           {statusBreakdown.map(s => (
-            <div key={s.label} className="bg-white rounded-3xl p-6 shadow-sm border border-border-light/50 flex items-center gap-5">
+            <div key={s.label} className="bg-white dark:bg-dark-paper rounded-3xl p-6 shadow-sm border border-border-light/50 dark:border-dark-border flex items-center gap-5">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.color + '18' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={s.color} strokeWidth="2.2" strokeLinecap="round">
                   {s.label === 'Done'        && <path d="M20 6L9 17l-5-5"/>}
@@ -294,51 +297,56 @@ export const AnalyticsPage = () => {
         </div>
 
         {/* ── Top Contributor card ── */}
-        <div className="col-span-3 bg-[#0A0D1A] rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-green-500/10 rounded-full blur-3xl" />
+        <div className={`col-span-3 rounded-3xl p-8 relative overflow-hidden transition-all duration-500 ${
+          isDark 
+            ? 'bg-gray-50 text-white shadow-2xl' 
+            : 'bg-white border border-border-light/50 text-text-main shadow-sm'
+        }`}>
+          <div className={`absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl ${isDark ? 'bg-brand/20' : 'bg-brand/5'}`} />
+          <div className={`absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-3xl ${isDark ? 'bg-green-500/10' : 'bg-green-500/5'}`} />
+          
           <div className="relative z-10">
-            <div className="text-[13px] font-bold text-white/50 mb-6 uppercase tracking-widest">Top Contributor</div>
+            <div className={`text-[13px] font-bold mb-6 uppercase tracking-widest ${isDark ? 'text-white/50' : 'text-text-3'}`}>Top Contributor</div>
+            
             {loading ? (
               <div className="animate-pulse flex items-center gap-5 mb-6">
-                <div className="w-16 h-16 bg-white/10 rounded-full" />
+                <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-white/10' : 'bg-gray-100'}`} />
                 <div className="space-y-2">
-                  <div className="h-5 w-32 bg-white/10 rounded" />
-                  <div className="h-4 w-20 bg-white/10 rounded" />
+                  <div className={`h-5 w-32 rounded ${isDark ? 'bg-white/10' : 'bg-gray-100'}`} />
+                  <div className={`h-4 w-20 rounded ${isDark ? 'bg-white/10' : 'bg-gray-100'}`} />
                 </div>
               </div>
             ) : data?.topContributor ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white font-extrabold text-[22px] flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white font-extrabold text-[22px] flex-shrink-0 shadow-lg shadow-brand/20">
                     {data.topContributor.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-[22px] font-bold mb-1">{data.topContributor.name}</div>
-                    <div className="text-[13px] text-white/50">Most tasks completed this sprint</div>
+                    <div className="text-[24px] font-extrabold mb-1 tracking-tight">{data.topContributor.name}</div>
+                    <div className={`text-[13px] font-medium ${isDark ? 'text-white/50' : 'text-text-3'}`}>Most tasks completed this sprint</div>
                   </div>
                 </div>
+                
                 <div className="flex gap-6">
-                  <div className="bg-white/5 rounded-2xl p-5 border border-white/5 text-center">
-                    <div className="text-[28px] font-bold">{data.topContributor.done}</div>
-                    <div className="text-[11px] text-white/40 font-bold uppercase mt-1">Done</div>
-                  </div>
-                  <div className="bg-white/5 rounded-2xl p-5 border border-white/5 text-center">
-                    <div className="text-[28px] font-bold">{data.topContributor.total}</div>
-                    <div className="text-[11px] text-white/40 font-bold uppercase mt-1">Assigned</div>
-                  </div>
-                  <div className="bg-white/5 rounded-2xl p-5 border border-white/5 text-center">
-                    <div className="text-[28px] font-bold text-green-400">
-                      {data.topContributor.total > 0
-                        ? Math.round((data.topContributor.done / data.topContributor.total) * 100)
-                        : 0}%
+                  {[
+                    { label: 'Done', val: data.topContributor.done, color: 'text-green-500' },
+                    { label: 'Assigned', val: data.topContributor.total, color: isDark ? 'text-white' : 'text-text-main' },
+                    { label: 'Rate', val: `${data.topContributor.total > 0 ? Math.round((data.topContributor.done / data.topContributor.total) * 100) : 0}%`, color: 'text-brand' }
+                  ].map((stat, idx) => (
+                    <div key={idx} className={`rounded-2xl p-5 border text-center min-w-[100px] transition-all ${
+                      isDark 
+                        ? 'bg-gray-100 border-border-light/50' 
+                        : 'bg-gray-50 border-gray-100'
+                    }`}>
+                      <div className={`text-[28px] font-black ${stat.color}`}>{stat.val}</div>
+                      <div className={`text-[11px] font-bold uppercase mt-1 tracking-wider ${isDark ? 'text-white/40' : 'text-text-3'}`}>{stat.label}</div>
                     </div>
-                    <div className="text-[11px] text-white/40 font-bold uppercase mt-1">Rate</div>
-                  </div>
+                  ))}
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 text-white/40 font-medium text-[14px]">
+              <div className={`text-center py-4 font-medium text-[14px] ${isDark ? 'text-white/40' : 'text-text-3'}`}>
                 No completed tasks yet — complete some tasks to see the top contributor.
               </div>
             )}

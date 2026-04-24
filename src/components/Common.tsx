@@ -40,14 +40,14 @@ export const Avatar = ({ user, size = 32 }: { user: any; size?: number }) => (
 
 export const StatusPill = ({ status }: { status: string }) => {
   const map: Record<string, string> = {
-    'Completed': 'bg-[#D1FAE5] text-[#059669]',
-    'In Progress': 'bg-[#FEF3C7] text-[#D97706]',
-    'Pending': 'bg-[#FEE2E2] text-[#DC2626]',
-    'High': 'bg-[#FEE2E2] text-[#DC2626]',
-    'Med': 'bg-[#DBEAFE] text-[#2563EB]',
-    'Low': 'bg-[#F3F4F6] text-[#6B7280]',
+    'Completed': 'bg-emerald-50 text-emerald-600',
+    'In Progress': 'bg-blue-50 text-blue-600',
+    'Pending': 'bg-amber-50 text-amber-600',
+    'High': 'bg-red-50 text-red-600',
+    'Med': 'bg-blue-50 text-blue-600',
+    'Low': 'bg-gray-50 text-text-3',
   };
-  return <span className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-transparent ${map[status] || 'bg-gray-100 text-gray-500'}`}>{status}</span>;
+  return <span className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-transparent ${map[status] || 'bg-gray-100 text-text-3'}`}>{status}</span>;
 };
 
 export const DonutChart = ({ pct = 41, color = '#1A1D2E' }) => {
@@ -55,7 +55,7 @@ export const DonutChart = ({ pct = 41, color = '#1A1D2E' }) => {
   const filled = circ * (pct / 100);
   return (
     <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#EEF0FF" strokeWidth="14" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="currentColor" className="text-border-light/30" strokeWidth="14" />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="14"
         strokeDasharray={`${filled} ${circ}`} strokeDashoffset={circ * 0.25}
         strokeLinecap="round" style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }} />
