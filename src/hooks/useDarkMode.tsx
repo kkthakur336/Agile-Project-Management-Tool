@@ -9,7 +9,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+export const ThemeProvider = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   const [isDark, setIsDark] = useState<boolean>(() => {
     const stored = localStorage.getItem(DARK_KEY);
     return stored === 'true';
