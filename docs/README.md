@@ -177,6 +177,3 @@ A custom-engineered theme system utilizing head-script injection to maintain dar
 - [ ] **Asset Management**: Integration with object storage for task attachments.
 
 ---
-
-## License
-Licensed under the **MIT License**. Developed with technical precision by the Sprintly Team.
