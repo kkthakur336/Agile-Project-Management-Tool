@@ -15,7 +15,6 @@ export const Sidebar = ({ page, setPage }: { page: string, setPage: (p: string) 
     {
       label: 'GENERAL', items: [
         { id: 'settings', icon: 'settings', name: 'Settings' },
-        { id: 'logout', icon: 'logout', name: 'Logout' },
       ]
     }
   ];

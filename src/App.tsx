@@ -53,13 +53,6 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Handle logout
-  useEffect(() => {
-    if (page === 'logout') {
-      supabase.auth.signOut();
-      setPage('dashboard');
-    }
-  }, [page]);
 
   if (loading) {
     return (
