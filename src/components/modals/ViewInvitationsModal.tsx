@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal } from './Modal';
+import { supabase } from '../../lib/supabase';
 
 interface Props {
   onClose: () => void;
