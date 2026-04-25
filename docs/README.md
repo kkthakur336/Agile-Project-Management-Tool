@@ -15,12 +15,8 @@ Sprintly is a high-performance, real-time Agile Project Management platform. Des
 
 <p align="center">
   <a href="https://drive.google.com/file/d/1HMeS6IwoPKk5w3mvCFSP1AzC5tNpPcFp/view?usp=sharing">
-    <img src="https://drive.google.com/thumbnail?id=1HMeS6IwoPKk5w3mvCFSP1AzC5tNpPcFp" alt="Sprintly Demo" width="800"/>
+    <img src="https://drive.google.com/uc?export=view&id=1HMeS6IwoPKk5w3mvCFSP1AzC5tNpPcFp" alt="Sprintly Demo" width="800"/>
   </a>
-</p>
-
-<p align="center">
-  <em>Click to watch the full Sprintly product walkthrough</em>
 </p>
 
 ---
